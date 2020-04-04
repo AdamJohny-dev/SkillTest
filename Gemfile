@@ -1,6 +1,9 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
+#Usei o ruby 2.65 por estar rodando a aplicacao no windows
+#poucas gems foram adicionadas por causa do Sistema Operacional
+#mas nao influenciam na versao do ruby deste arquivo no git
 ruby '2.6.3'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
