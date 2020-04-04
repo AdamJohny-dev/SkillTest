@@ -58,20 +58,30 @@ Exams.Gui = class{
     }
   }
 
-  examRow(exam){
-    let html = `<tr data-exam-id='${exam.id}'>`
+  //btn btn-sm btn-danger delete is used in destroy.erb.js
+  examRow(exam){   
+       
+    let html =
+    
+    `<tr data-exam-id="${exam.id}" >`
     html += `<td data-exam-po-x='${exam.po.x}' data-exam-po-y='${exam.po.y}'>x: ${exam.po.x} y: ${exam.po.y}</td>`
     html += `<td data-exam-or-x='${exam.or.x}' data-exam-or-y='${exam.or.y}'>x: ${exam.or.x} y: ${exam.or.y}</td>`
     html += `<td data-exam-n-x='${exam.n.x}' data-exam-n-y='${exam.n.y}'>x: ${exam.n.x} y: ${exam.n.y}</td>`
     html += `<td data-exam-a-x='${exam.a.x}' data-exam-a-y='${exam.a.y}'>x: ${exam.a.x} y: ${exam.a.y}</td>`
     html += `<td data-exam-angle='${exam.angle}'>${exam.angle}</td>`
     html += `<td>
-      <div class="float-right">
+      <div class="float-right" >
         <a class="btn btn-sm btn-secondary" href="/patients/${exam.patientId}/exams/${exam.id}">Show</a>
         <button class="btn btn-sm btn-secondary" type='button' data-exams='btn-edit'>Edit</button>
-        <a class="btn btn-sm btn-danger" data-confirm="Are you sure?" rel="nofollow" data-method="delete" href="/patients/${exam.patientId}/exams/${exam.id}">Destroy</a>
+        <a class="btn btn-sm btn-danger delete"  rel="nofollow" data-confirm = "Are you sure?"
+        data-method= "delete" href="/patients/${exam.patientId}/exams/${exam.id}"  
+        data-remote = "true"  
+          
+     >Destroy</a>
       </div>
     </td>`
+    
     return html += `</tr>`
+   
   }
 }
