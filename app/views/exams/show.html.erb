@@ -14,7 +14,11 @@
         
 		<script>
             
-
+      //Implementa a visão dos planos com os pontos e o maximo angulo mostrados
+      //Optei por usar o OrbitControls pois tem menos bugs do que o TrackballControls na aplicacao
+      //Para dar zoom, role o scroll do mouse e depois clique na tela
+      //Os planos estão sendo perfeitamente gerados. Caso tenha algum bug, favor reportar para
+     // adamjohny@get.inatel.br
       var retaAN = '<%=@exam.retaAN%>';
       var retaOrPo = '<%=@exam.retaOrPo%>';
       var max_depth_angle = '<%=@exam.maxillary_depth_angle%>';
