@@ -1,39 +1,181 @@
-<div class="row">
-  <div class="col-md-12">
-    <p>
-      <strong>Patient:</strong>
-      <%= @patient.name %>
-    </p>
-  </div>
-</div>
+<html>
+	<head>
+		<title>My first three.js app</title>
+    <meta charset="utf-8">
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>  
+    <%= javascript_include_tag('three.js') %>
+    <%= javascript_include_tag('OrbitControls.js')%>
+    
+        
+		<script>
+            
 
-<div class="row">
-  <div class="col-md-2">
-    Point Po <br> <%= "x: #{@exam.point_po.x}, y: #{@exam.point_po.y}" %>
-  </div>
-  <div class="col-md-2">
-    Point Or <br> <%= "x: #{@exam.point_or.x}, y: #{@exam.point_or.y}" %>
-  </div>
-  <div class="col-md-2">
-    Point N <br> <%= "x: #{@exam.point_n.x}, y: #{@exam.point_n.y}" %>
-  </div>
-  <div class="col-md-2">
-    Point A <br> <%= "x: #{@exam.point_a.x}, y: #{@exam.point_a.y}" %>
-  </div>
-  <div class="col-md-2">
-    Angle <br> <%= @exam.maxillary_depth_angle %>
-  </div>
-</div>
+      var retaAN = '<%=@exam.retaAN%>';
+      var retaOrPo = '<%=@exam.retaOrPo%>';
+      var max_depth_angle = '<%=@exam.maxillary_depth_angle%>';
 
-<div class="row">
-  <div class="col-md-12" data-view3d='wrapper'>
-  </div>
-</div>
 
-<div class="row">
-  <div class="col-md-12">
-    <div class="actions">
-      <%= link_to 'Back', patient_path(@patient), class: "btn btn-secondary" %>
-    </div>
-  </div>
-</div>
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 1, 1000000 );
+			var renderer = new THREE.WebGLRenderer();
+      renderer.setSize( window.innerWidth, window.innerHeight );
+      renderer.setClearColor (0xffffff, 1);
+            document.body.appendChild( renderer.domElement );    
+
+      window.addEventListener('resize', function(){
+            
+                var width = window.innerWidth;
+                var height = window.innerHeight;
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectMatrix();
+            
+      })  
+
+            
+
+
+           
+            
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            angulo = false;
+            //document.addEventListener( 'mousewheel', mouseWheel, false );
+            calculaPosicao("<%=@exam.point_a.x%>","<%=@exam.point_a.y%>",retaAN,0, 'A');
+            calculaPosicao("<%=@exam.point_n.x%>","<%=@exam.point_n.y%>",retaAN,0, 'N' );
+            calculaPosicao("-<%=@exam.point_or.x%>","<%=@exam.point_or.y%>",retaOrPo,500, 'Or');
+            calculaPosicao("-<%=@exam.point_po.x%>","<%=@exam.point_po.y%>",retaOrPo,500, 'Po');
+            calculaPosicao("<%=@exam.point_a.x%>",1000,retaAN, 0, 'max_angle',true);
+             
+        
+           
+            var line = new THREE.Line3(new THREE.Vector3(0,10,0), new THREE.Vector3(0,-10,0));
+            var planoref = new THREE.Plane(new THREE.Vector3(0,1,0), -5);
+            //alert( planoref.intersectLine(line).y);
+            alert("Angulo de profundidade máxima: "+ Math.round(max_depth_angle) +" graus.");
+            
+
+            var planeGeom1 = new THREE.PlaneBufferGeometry(2000, 2000, 298, 298);
+            planeGeom1.translate(-1000 * 0.5, 0, 0);
+            //plane AN in correct position
+            planeGeom1.rotateY(90*(Math.PI/180) - Math.abs(retaAN));
+            console.log(retaAN);
+            
+            
+            var planeGeom2 = new THREE.PlaneBufferGeometry(2000, 2000, 298, 298);
+            planeGeom2.translate(-450, 0, 500);
+            //plane OrPo in correct position
+            // the Math.abs() avoids non-intersection between the planes
+            planeGeom2.rotateY(-90*(Math.PI/180) + Math.abs(retaOrPo));
+            console.log(Math.abs(retaOrPo));
+            //'<%=@exam.retaOrPo%>'
+
+            var planeGeom3 = new THREE.PlaneBufferGeometry(2000, 30, 298, 298);
+            var textGeo = null;
+            var textMaterial = null;
+            $.getJSON('/helvetiker_regular.typeface.json', function(data) {
+              console.log(data);
+            });
+            // using the same geometry you can have plane meshes
+            var mesh1 = new THREE.Mesh(planeGeom1, new THREE.MeshBasicMaterial({side:THREE.DoubleSide, map:
+               //AN plane
+               new THREE.TextureLoader().load('https://i.imgur.com/1BOiy18.jpg'), depthTest: true,transparent:true, sizeAttenuation: false}));
+             var mesh2 = new THREE.Mesh(planeGeom2, new THREE.MeshBasicMaterial({side:THREE.DoubleSide, map:
+               //OrPo plane
+               new THREE.TextureLoader().load('https://i.imgur.com/4zgReiJg.jpg'), depthTest: true, sizeAttenuation: false}));
+            var mesh3 = new THREE.Mesh(planeGeom3, new THREE.MeshBasicMaterial({side:THREE.DoubleSide, color: "black", depthTest: false}));
+            
+            
+
+            scene.add(mesh1);
+            scene.add(mesh2);
+            scene.add(mesh3);          
+
+            camera.position.set(-1200,-1800,1000);
+            camera.up = new THREE.Vector3(0,0,1);
+            camera.lookAt(new THREE.Vector3(0,0,0));
+             
+             
+
+            
+            var ambientLight = new THREE.AmbientLight( 0xFFFFFF, 2.5 );
+            scene.add(ambientLight);
+
+			var animate = function () {
+				requestAnimationFrame( animate );
+
+				//box.rotation.x += 0.01;
+				//box.rotation.y += 0.01;
+
+				renderer.render( scene, camera );
+            };
+            animate();
+        //show the points A, N, Or and Po    
+        function calculaPosicao(x,y,coefAngular,altPlanGeom2,ponto,angulo){
+          var dotGeometry = new THREE.Geometry();
+          dotGeometry.vertices.push(new THREE.Vector3( -x*Math.sin(coefAngular),
+              -y,x*Math.cos(coefAngular) + altPlanGeom2));
+          var dotMaterial = new THREE.PointsMaterial( {color:'black', size: 10, sizeAttenuation: false, depth:false } );
+          var dot = new THREE.Points( dotGeometry, dotMaterial );
+          scene.add(dot);
+
+          //attribute name to the points
+          var loader = new THREE.FontLoader();
+          loader.load( '/helvetiker_regular.typeface.json', function ( font ) {
+
+            textGeo = new THREE.TextGeometry( ponto, {
+    
+              font: font,
+
+              size: 50,
+              height: 50,
+              curveSegments: 12,
+
+              bevelThickness: 1,
+              bevelSize: 1,
+              bevelEnabled: true
+        
+
+            } );
+
+
+  
+           textMaterial = new THREE.MeshBasicMaterial( { color: 'black' } );
+
+           var mesh = new THREE.Mesh( textGeo, textMaterial );
+           mesh.position.set(  -x*Math.sin(coefAngular), -y,x*Math.cos(coefAngular) + altPlanGeom2 + 30 );
+           mesh.rotation.set(90*(Math.PI/180), 0, 0 );
+          scene.add( mesh );
+
+          } );
+          if (angulo) {
+          desenhoAngulo = new THREE.SphereGeometry(20,20,20);
+          var anguloMaterial = new THREE.MeshBasicMaterial( {color: 'red'} );
+          var sphere = new THREE.Mesh( desenhoAngulo, anguloMaterial );
+          sphere.position.set(-x*Math.sin(coefAngular), -y,x*Math.cos(coefAngular) - altPlanGeom2);
+          scene.add( sphere );
+        }
+
+        }
+
+
+        
+            
+            
+        </script>
+        <div class="row">
+        <div class="col-md-12">
+        <div class="actions">
+        <%= link_to 'Back', patient_path(@patient), class: "btn btn-secondary" %>
+        </div>
+        </div>
+        </div>
+
+
+
+    </body>
+</html>
